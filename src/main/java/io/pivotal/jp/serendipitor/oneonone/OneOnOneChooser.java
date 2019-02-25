@@ -49,7 +49,7 @@ public class OneOnOneChooser {
 					Payload payload = new Payload();
 					payload.setChannel(this.getChannel());
 					payload.setText(
-							String.format("今週の1on1は<@%s>と<@%s>です。%sから%sまでの間に実施ましょう。",
+							String.format("今週の1on1は<@%s>と<@%s>です。%sから%sまでの間に実施しましょう。",
 									oneOnOne.getFirst(), oneOnOne.getSecond(),
 									oneOnOne.getDate(), oneOnOne.getDate().plusDays(5)));
 					payload.setAttachments(List.of(new Attachment() {
