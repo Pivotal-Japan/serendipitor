@@ -5,6 +5,7 @@ import io.pivotal.jp.serendipitor.user.SlackUserController;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -22,6 +23,7 @@ public class RouteConfig {
 				.GET("/", req -> status(SEE_OTHER) //
 						.header(LOCATION, "/index.html") //
 						.build()) //
+				.resources("/**", new ClassPathResource("META-INF/resources/")) //
 				.add(slackUserController.routes()) //
 				.add(oneOnOneController.routes()) //
 				.build();
