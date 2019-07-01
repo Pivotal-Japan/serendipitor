@@ -1,5 +1,6 @@
 package io.pivotal.jp.serendipitor.oneonone;
 
+import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
 
 import org.springframework.stereotype.Component;
@@ -28,8 +29,7 @@ public class OneOnOneController {
 
 	public Mono<ServerResponse> choose(ServerRequest req) {
 		Mono<OneOnOne> choose = this.oneOnOneChooser.choose();
-		return ServerResponse.ok() //
-				.body(choose, OneOnOne.class);
+		return ServerResponse.noContent().build(choose.then());
 	}
 
 	public Mono<ServerResponse> history(ServerRequest req) {
