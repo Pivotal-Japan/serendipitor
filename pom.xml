@@ -85,6 +85,36 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>net.unit8.maven.plugins</groupId>
+                <artifactId>elm-maven-plugin</artifactId>
+                <version>0.1.0</version>
+                <configuration>
+                    <installDirectory>target</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-elm</id>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <configuration>
+                            <elmVersion>0.19.0</elmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>elm-make</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>make src/Main.elm --optimize --output=${build.directory}/classes/META-INF/resources/index.html</arguments>
+                            <workingDirectory>${basedir}/serendipitor-ui</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
