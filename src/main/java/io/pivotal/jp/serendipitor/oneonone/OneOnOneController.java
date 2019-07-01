@@ -1,6 +1,5 @@
 package io.pivotal.jp.serendipitor.oneonone;
 
-import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
 
 import org.springframework.stereotype.Component;
