@@ -3,15 +3,20 @@ package io.pivotal.jp.serendipitor.user;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.data.r2dbc.function.TransactionalDatabaseClient;
+import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Repository
 public class R2dbcSlackUserRepository implements SlackUserRepository {
-	private final TransactionalDatabaseClient databaseClient;
+	private final DatabaseClient databaseClient;
 
-	public R2dbcSlackUserRepository(TransactionalDatabaseClient databaseClient) {
+	private final TransactionalOperator tx;
+
+	public R2dbcSlackUserRepository(DatabaseClient databaseClient,
+			TransactionalOperator tx) {
 		this.databaseClient = databaseClient;
+		this.tx = tx;
 	}
 
 	@Override
@@ -25,24 +30,26 @@ public class R2dbcSlackUserRepository implements SlackUserRepository {
 
 	@Override
 	public Mono<SlackUser> save(SlackUser slackUser) {
-		return this.databaseClient.inTransaction(client -> client.execute() //
+		return this.databaseClient.execute() //
 				.sql("INSERT INTO slack_user(user_id, user_name) VALUES ($1, $2)") //
 				.bind("$1", slackUser.getUserId()) //
 				.bind("$2", slackUser.getUserName()) //
 				.fetch() //
 				.rowsUpdated() //
-				.thenReturn(slackUser)) //
+				.as(tx::transactional) //
+				.thenReturn(slackUser) //
 				.single();
 	}
 
 	@Override
 	public Mono<Void> delete(SlackUser slackUser) {
-		return this.databaseClient.inTransaction(client -> client.execute() //
+		return this.databaseClient.execute() //
 				.sql("DELETE FROM slack_user WHERE user_id = $1") //
 				.bind("$1", slackUser.getUserId()) //
 				.fetch() //
 				.rowsUpdated() //
-				.then()) //
+				.as(tx::transactional) //
+				.then() //
 				.single();
 	}
 }

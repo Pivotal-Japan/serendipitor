@@ -5,27 +5,33 @@ import java.time.LocalDate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.data.r2dbc.function.TransactionalDatabaseClient;
+import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Repository
 public class R2dbcOneOnOneRepository implements OneOnOneRepository {
-	private final TransactionalDatabaseClient databaseClient;
+	private final DatabaseClient databaseClient;
 
-	public R2dbcOneOnOneRepository(TransactionalDatabaseClient databaseClient) {
+	private final TransactionalOperator tx;
+
+	public R2dbcOneOnOneRepository(DatabaseClient databaseClient,
+			TransactionalOperator tx) {
 		this.databaseClient = databaseClient;
+		this.tx = tx;
 	}
 
 	@Override
 	public Mono<OneOnOne> save(OneOnOne oneOnOne) {
-		return this.databaseClient.inTransaction(client -> client.execute() //
+		return this.databaseClient.execute() //
 				.sql("INSERT INTO one_on_one(first, second, date) VALUES ($1, $2, $3)") //
 				.bind("$1", oneOnOne.getFirst()) //
 				.bind("$2", oneOnOne.getSecond()) //
 				.bind("$3", oneOnOne.getDate()) //
 				.fetch() //
-				.rowsUpdated() //
-				.thenReturn(oneOnOne)) //
+				.rowsUpdated()//
+				.as(this.tx::transactional) //
+				.thenReturn(oneOnOne) //
 				.single();
 	}
 
